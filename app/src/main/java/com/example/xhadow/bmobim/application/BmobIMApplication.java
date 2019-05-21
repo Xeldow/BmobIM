@@ -2,7 +2,7 @@ package com.example.xhadow.bmobim.application;
 
 import android.app.Application;
 
-import com.example.xhadow.bmobim.im.MyMessageHandler;
+import com.example.xhadow.bmobim.utils.MyMessageHandler;
 import com.orhanobut.logger.AndroidLogAdapter;
 import com.orhanobut.logger.Logger;
 

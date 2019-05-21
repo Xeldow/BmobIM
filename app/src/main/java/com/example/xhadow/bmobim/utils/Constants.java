@@ -1,4 +1,4 @@
-package com.example.xhadow.bmobim;
+package com.example.xhadow.bmobim.utils;
 
 import com.example.xhadow.bmobim.login.model.UserBean;
 

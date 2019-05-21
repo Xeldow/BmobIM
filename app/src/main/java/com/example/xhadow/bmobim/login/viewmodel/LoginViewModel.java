@@ -1,12 +1,10 @@
 package com.example.xhadow.bmobim.login.viewmodel;
 
-import android.app.Activity;
-import android.database.Observable;
+import android.content.SharedPreferences;
 import android.databinding.ObservableField;
-import android.view.View;
 
-import com.example.xhadow.bmobim.Constants;
-import com.example.xhadow.bmobim.MainActivity;
+import com.example.xhadow.bmobim.utils.Constants;
+import com.example.xhadow.bmobim.im.MainActivity;
 import com.example.xhadow.bmobim.databinding.ActivityLoginBinding;
 import com.example.xhadow.bmobim.login.LoginActivity;
 import com.example.xhadow.bmobim.login.model.UserBean;
@@ -20,6 +18,9 @@ import cn.bmob.v3.BmobQuery;
 import cn.bmob.v3.exception.BmobException;
 import cn.bmob.v3.listener.FindListener;
 import cn.bmob.v3.listener.SaveListener;
+
+import static android.content.Context.MODE_PRIVATE;
+import static com.example.xhadow.bmobim.utils.Constants.user;
 
 /**
  * @description:
@@ -37,6 +38,19 @@ public class LoginViewModel {
         this.binding = binding;
         this.mContext = mContext;
         opName.set("登录/注册");
+        /**
+         * 打开app的时候判之前是否有保留账号信息，有的话直接到主界面
+         */
+        SharedPreferences sharedPreferences = mContext.getSharedPreferences("user", 0);
+        if (sharedPreferences.getBoolean("isLogin", false)) {
+            UserBean userBean = new UserBean();
+            userBean.setAccount(sharedPreferences.getString("account", "null"));
+            userBean.setObjectId(sharedPreferences.getString("id", "null"));
+            user = userBean;
+            //跳转
+            mContext.startActivity_x(MainActivity.class);
+            mContext.finish();
+        }
     }
 
     public void login() {
@@ -56,10 +70,10 @@ public class LoginViewModel {
                     opName.set("登录中...");
                     if (password_md5.equals(list.get(0).getPassword())) {
                         mContext.toastShort("登录成功!");
-                        Constants.user=list.get(0);
-                        //跳转
-                        mContext.startActivity_x(MainActivity.class);
-                        mContext.finish();
+                        /*
+                        实现自动登录
+                         */
+                        saveUser(list.get(0));
                     }
                     //密码错误
                     else {
@@ -71,15 +85,13 @@ public class LoginViewModel {
                     opName.set("注册中...");
                     mContext.toastShort("账号不存在,开始自动注册...");
 
-                    UserBean newUser = new UserBean(account, password_md5);
+                    final UserBean newUser = new UserBean(account, password_md5);
                     newUser.save(new SaveListener<String>() {
                         @Override
                         public void done(String s, BmobException e) {
                             if (e == null) {
                                 mContext.toastShort("自动注册成功！");
-                                //跳转
-                                mContext.startActivity_x(MainActivity.class);
-                                mContext.finish();
+                                saveUser(newUser);
                             } else {
                                 mContext.toastShort("自动注册失败：" + e.getMessage());
                             }
@@ -91,6 +103,22 @@ public class LoginViewModel {
             }
         });
 
+    }
+
+    /**
+     * 登录成功后记住密码并跳转到主界面
+     */
+    private void saveUser(UserBean userBean) {
+        user = userBean;
+        SharedPreferences sharedPreferences = mContext.getSharedPreferences("user", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("account", userBean.getAccount());
+        editor.putString("id", userBean.getObjectId());
+        editor.putBoolean("isLogin", true);
+        editor.apply();
+        //跳转
+        mContext.startActivity_x(MainActivity.class);
+        mContext.finish();
     }
 
     /**

@@ -35,21 +35,21 @@ public abstract class BaseActivity extends AppCompatActivity {
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                     WindowManager.LayoutParams.FLAG_FULLSCREEN);
         }
-        //初始化控件
-        initView();
-        //设置数据
-        initData();
+//        //初始化控件
+////        initView();
+////        //设置数据
+////        initData();
     }
 
-    /**
-     * 初始化布局
-     */
-    public abstract void initView();
-
-    /**
-     * 设置数据
-     */
-    public abstract void initData();
+//    /**
+//     * 初始化布局
+//     */
+//    public abstract void initView();
+//
+//    /**
+//     * 设置数据
+//     */
+//    public abstract void initData();
 
     /**
      * 是否设置标题栏

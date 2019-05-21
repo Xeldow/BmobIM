@@ -1,5 +1,9 @@
 package com.example.xhadow.bmobim.login.model;
 
+import com.example.xhadow.bmobim.im.model.FriendModel;
+
+import java.util.List;
+
 import cn.bmob.v3.BmobObject;
 
 /**
@@ -10,6 +14,11 @@ import cn.bmob.v3.BmobObject;
 public class UserBean extends BmobObject {
     private String account;
     private String password;
+    private List<FriendModel> friendModelList;
+
+    public UserBean() {
+
+    }
 
     public UserBean(String account, String password) {
         this.account = account;
@@ -30,5 +39,14 @@ public class UserBean extends BmobObject {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+
+    public List<FriendModel> getFriendModelList() {
+        return friendModelList;
+    }
+
+    public void setFriendModelList(List<FriendModel> friendModelList) {
+        this.friendModelList = friendModelList;
     }
 }

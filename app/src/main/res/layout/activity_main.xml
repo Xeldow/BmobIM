@@ -1,48 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".MainActivity">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
 
+        <variable
+            name="onClick"
+            type="android.view.View.OnClickListener" />
+
+        <variable
+            name="viewModel"
+            type="com.example.xhadow.bmobim.im.MainViewModel" />
+
+        <variable
+            name="messageHandler"
+            type="com.example.xhadow.bmobim.utils.MyMessageHandler" />
 
     </data>
 
     <LinearLayout
-        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
         <Button
-            android:text="添加好友"
-            android:id="@+id/button"
+            android:id="@+id/addFriend_btn"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:onClick="@{()-> viewModel.addFriend()}"
+            android:text="添加好友" />
 
-        <TextView
-            android:layout_weight="1"
-            android:id="@+id/msg_tv"
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/friend_rv"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent">
 
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+        </android.support.v7.widget.RecyclerView>
 
-            <EditText
-                android:layout_weight="1"
-                android:id="@+id/msg_et"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-
-            <Button
-                android:id="@+id/send_btn"
-                android:text="发送"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-        </LinearLayout>
 
     </LinearLayout>
 
