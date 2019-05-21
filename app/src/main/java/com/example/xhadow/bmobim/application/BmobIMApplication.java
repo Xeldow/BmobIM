@@ -2,6 +2,7 @@ package com.example.xhadow.bmobim.application;
 
 import android.app.Application;
 
+import com.example.xhadow.bmobim.im.MyMessageHandler;
 import com.orhanobut.logger.AndroidLogAdapter;
 import com.orhanobut.logger.Logger;
 
@@ -9,6 +10,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 
+import cn.bmob.newim.BmobIM;
 import cn.bmob.v3.Bmob;
 
 /**
@@ -22,10 +24,10 @@ public class BmobIMApplication extends Application {
     public void onCreate() {
         super.onCreate();
         //TODO 集成：1.8、初始化IM SDK，并注册消息接收器
-//        if (getApplicationInfo().packageName.equals(getMyProcessName())) {
-//            BmobIM.init(this);
-//            BmobIM.registerDefaultMessageHandler(new MyMessageHandler());
-//        }
+        if (getApplicationInfo().packageName.equals(getMyProcessName())) {
+            BmobIM.init(this);
+            BmobIM.registerDefaultMessageHandler(new MyMessageHandler());
+        }
         // TODO :初始化Logger
         Logger.addLogAdapter(new AndroidLogAdapter());
         //
