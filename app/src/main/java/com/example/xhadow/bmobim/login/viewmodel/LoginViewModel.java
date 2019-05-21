@@ -5,6 +5,7 @@ import android.database.Observable;
 import android.databinding.ObservableField;
 import android.view.View;
 
+import com.example.xhadow.bmobim.Constants;
 import com.example.xhadow.bmobim.MainActivity;
 import com.example.xhadow.bmobim.databinding.ActivityLoginBinding;
 import com.example.xhadow.bmobim.login.LoginActivity;
@@ -55,6 +56,7 @@ public class LoginViewModel {
                     opName.set("登录中...");
                     if (password_md5.equals(list.get(0).getPassword())) {
                         mContext.toastShort("登录成功!");
+                        Constants.user=list.get(0);
                         //跳转
                         mContext.startActivity_x(MainActivity.class);
                         mContext.finish();
