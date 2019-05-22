@@ -146,10 +146,11 @@ public class MainViewModel implements MessageListHandler {
 
     @Override
     public void onMessageReceive(List<MessageEvent> list) {
-        Logger.d("receive!" + list.size());
+        Logger.d("size=" + list.size());
         for (int i = 0; i < list.size(); i++) {
             addMsg(list.get(i));
-            Logger.d("receive!" + i);
+            Logger.d("i=" + i);
+            Logger.d("msg=" + i);
         }
     }
 
