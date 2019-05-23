@@ -2,6 +2,7 @@ package com.example.xhadow.bmobim.chat;
 
 import android.media.Ringtone;
 
+import com.bumptech.glide.Glide;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.example.xhadow.bmobim.R;
@@ -38,6 +39,13 @@ public class MsgAdapter extends BaseQuickAdapter<Msg, BaseViewHolder> {
 
                 holder.setGone(R.id.right_layout, true);
                 holder.setText(R.id.right_msg, msg.getContent());
+                holder.setText(R.id.right_name, mName);
+            case SENT_IMG:
+                holder.setGone(R.id.left_layout, false);
+
+                holder.setGone(R.id.right_layout, true);
+                holder.setGone(R.id.right_msg,true);
+                holder.setVisible(R.id.right_img,true);
                 holder.setText(R.id.right_name, mName);
                 break;
         }

@@ -1,7 +1,11 @@
 package com.example.xhadow.bmobim.im;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.DialogInterface;
+import android.content.pm.PackageManager;
 import android.databinding.DataBindingUtil;
+import android.os.Build;
 import android.support.v7.app.AlertDialog;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -31,6 +35,7 @@ public class MainActivity extends BaseActivity {
         viewModel = new MainViewModel(binding, this);
         binding.setViewModel(viewModel);
         connect();
+        isGrantExternalRW(this);
     }
 
     private void connect() {
@@ -53,12 +58,20 @@ public class MainActivity extends BaseActivity {
         }
     }
 
-    public void initView() {
+    public static boolean isGrantExternalRW(Activity activity) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && activity.checkSelfPermission(
+                Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
 
+            activity.requestPermissions(new String[]{
+                    Manifest.permission.READ_EXTERNAL_STORAGE,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+            }, 1);
 
-//                Intent intent = getPackageManager().getLaunchIntentForPackage("com.tencent.mm");
-//                intent.putExtra("LauncherUI.From.Scaner.Shortcut", true);
-//                startActivity(intent);
+            return false;
+        }
+
+        return true;
     }
+
 
 }

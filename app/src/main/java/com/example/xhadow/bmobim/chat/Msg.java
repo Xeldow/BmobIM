@@ -27,6 +27,7 @@ public class Msg {
          * 发送
          */
         SENT,
+        SENT_IMG
     }
 
 
