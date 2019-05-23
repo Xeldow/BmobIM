@@ -1,5 +1,6 @@
 package com.example.xhadow.bmobim.chat;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ContentUris;
 import android.content.Context;
@@ -86,14 +87,14 @@ public class ChatActivity extends BaseActivity implements MessageListHandler {
     }
 
     public void initView() {
-        img_right=findViewById(R.id.right_img);
+        img_right = findViewById(R.id.right_img);
 
         refreshLayout = findViewById(R.id.load_more_load_fail_view);
         refreshLayout.setProgressViewOffset(true, -30, -40);
 
         recyclerView = findViewById(R.id.recycleView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new MsgAdapter(R.layout.item_msg, mList);
+        adapter = new MsgAdapter(R.layout.item_msg, mList, ChatActivity.this);
         recyclerView.setAdapter(adapter);
         recyclerView.setItemViewCacheSize(50);
 
@@ -225,6 +226,12 @@ public class ChatActivity extends BaseActivity implements MessageListHandler {
         });
     }
 
+    /**
+     * 加载历史数据
+     *
+     * @param bmobIMMessage
+     * @param count
+     */
     public void queryMsg(BmobIMMessage bmobIMMessage, int count) {
 
         mConversationManager.queryMessages(bmobIMMessage, count, new MessagesQueryListener() {
@@ -277,7 +284,12 @@ public class ChatActivity extends BaseActivity implements MessageListHandler {
     public void onMessageReceive(List<MessageEvent> list) {
         Logger.d("size=" + list.size());
         for (int i = 0; i < list.size(); i++) {
-            mList.add(new Msg(list.get(i).getMessage().getContent(), Msg.TYPE.RECEIVED));
+            String m = list.get(i).getMessage().getContent();
+            if (m.contains("http")) {
+                mList.add(new Msg(m, Msg.TYPE.RECEIVED_IMG));
+            } else {
+                mList.add(new Msg(list.get(i).getMessage().getContent(), Msg.TYPE.RECEIVED));
+            }
             toEnd();
             Logger.d("i=" + i);
             Logger.d("msg=" + list.get(i).getMessage().getContent());
@@ -300,6 +312,7 @@ public class ChatActivity extends BaseActivity implements MessageListHandler {
         @Override
         public void onStart(BmobIMMessage msg) {
             super.onStart(msg);
+
             Logger.d(msg);
         }
 
@@ -322,12 +335,16 @@ public class ChatActivity extends BaseActivity implements MessageListHandler {
      * 发送本地文件
      */
     public void sendLocalFileMessage(String path) {
+        mList.add(new Msg(path, Msg.TYPE.SENT_IMG));
+
         //TODO 发送消息：6.8、发送本地文件消息
         BmobIMImageMessage image = new BmobIMImageMessage(path);
         mConversationManager.sendMessage(image, listener);
+
     }
 
 
+    @SuppressLint("NewApi")
     public String getPath(final Context context, final Uri uri) {
 
         final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
@@ -418,8 +435,9 @@ public class ChatActivity extends BaseActivity implements MessageListHandler {
                 return cursor.getString(column_index);
             }
         } finally {
-            if (cursor != null)
+            if (cursor != null) {
                 cursor.close();
+            }
         }
         return null;
     }

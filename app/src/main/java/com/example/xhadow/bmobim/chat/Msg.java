@@ -27,7 +27,8 @@ public class Msg {
          * 发送
          */
         SENT,
-        SENT_IMG
+        SENT_IMG,
+        RECEIVED_IMG
     }
 
 
@@ -35,6 +36,7 @@ public class Msg {
         this.content = content;
         this.type = type;
     }
+
 
     public TYPE getType() {
         return type;

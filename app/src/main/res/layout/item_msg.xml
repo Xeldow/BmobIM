@@ -27,6 +27,19 @@
             android:text="服务器"
             android:textSize="18sp" />
 
+        <ImageView
+            android:visibility="gone"
+            android:id="@+id/left_img"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_below="@+id/left_name"
+            android:layout_toRightOf="@+id/left_head_img"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:layout_toEndOf="@+id/left_head_img" />
+
         <TextView
             android:id="@+id/left_msg"
             android:layout_width="wrap_content"
@@ -58,8 +71,8 @@
         <ImageView
             android:visibility="gone"
             android:id="@+id/right_img"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
             android:layout_below="@+id/right_name"
             android:layout_gravity="center"
             android:layout_toLeftOf="@+id/right_head_img"
