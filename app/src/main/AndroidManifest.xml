@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.xhadow.bmobim">
+
     <!-- TODO 1.4、配置IM SDK需要的权限 -->
     <!-- 网络权限 -->
     <uses-permission android:name="android.permission.INTERNET" /> <!-- 监听网络的变化 -->
@@ -14,7 +15,7 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO" /> <!-- 通知震动 -->
     <uses-permission android:name="android.permission.VIBRATE" /> <!-- 前台服务 -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
@@ -26,7 +27,13 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".chat.ChatActivity"></activity>
+        <service
+            android:name=".download.DownloadService"
+            android:enabled="true"
+            android:exported="true"></service>
+
+        <activity android:name=".download.DownLoadActivity" />
+        <activity android:name=".chat.ChatActivity" />
 
         <uses-library
             android:name="org.apache.http.legacy"
@@ -39,11 +46,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".im.MainActivity"></activity>
+        <activity android:name=".im.MainActivity" />
 
         <provider
             android:name="cn.bmob.v3.util.BmobContentProvider"
-            android:authorities="com.example.xhadow.bmobim.BmobContentProvider"></provider>
+            android:authorities="com.example.xhadow.bmobim.BmobContentProvider" />
 
         <receiver android:name="cn.bmob.newim.core.ConnectChangeReceiver">
             <intent-filter>
