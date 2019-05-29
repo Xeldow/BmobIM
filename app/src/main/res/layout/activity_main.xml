@@ -31,6 +31,13 @@
             android:onClick="@{()-> viewModel.addFriend()}"
             android:text="添加好友" />
 
+        <Button
+            android:id="@+id/toDownLoad"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="@{()-> viewModel.toDownLoad()}"
+            android:text="下载" />
+
         <android.support.v7.widget.RecyclerView
             android:id="@+id/friend_rv"
             android:layout_width="match_parent"

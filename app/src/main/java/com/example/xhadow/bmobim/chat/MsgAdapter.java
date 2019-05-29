@@ -28,7 +28,7 @@ public class MsgAdapter extends BaseQuickAdapter<Msg, BaseViewHolder> {
 
     public MsgAdapter(int layoutId, List<Msg> list, Context mContext) {
         super(layoutId, list);
-        this.mContext=mContext;
+        this.mContext = mContext;
     }
 
     @Override
@@ -56,11 +56,16 @@ public class MsgAdapter extends BaseQuickAdapter<Msg, BaseViewHolder> {
                 holder.setGone(R.id.right_msg, false);
                 holder.setVisible(R.id.right_img, true);
                 holder.setText(R.id.right_name, mName);
-                Bitmap bitmap = getLoacalBitmap(msg.getContent());
-                holder.setImageBitmap(R.id.right_img, bitmap);
+                if (msg.getContent().contains("http")){
+                    Glide.with(mContext)
+                            .load(msg.getContent())
+                            .into((ImageView) holder.getView(R.id.right_img));
+                }else {
+                    Bitmap bitmap = getLoacalBitmap(msg.getContent());
+                    holder.setImageBitmap(R.id.right_img, bitmap);
+                }
                 break;
             case RECEIVED_IMG://接收的消息
-                holder.setGone(R.id.left_layout, false);
                 holder.setGone(R.id.right_layout, false);
 
                 holder.setGone(R.id.left_layout, true);
@@ -69,7 +74,7 @@ public class MsgAdapter extends BaseQuickAdapter<Msg, BaseViewHolder> {
                 holder.setText(R.id.left_name, fName);
                 Glide.with(mContext)
                         .load(msg.getContent())
-                        .into((ImageView) holder.getView(R.id.left_head_img));
+                        .into((ImageView) holder.getView(R.id.left_img));
                 break;
         }
     }

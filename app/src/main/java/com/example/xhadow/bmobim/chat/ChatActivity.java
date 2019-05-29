@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.MissingResourceException;
 
 import cn.bmob.newim.BmobIM;
+import cn.bmob.newim.bean.BmobIMAudioMessage;
 import cn.bmob.newim.bean.BmobIMConversation;
 import cn.bmob.newim.bean.BmobIMFileMessage;
 import cn.bmob.newim.bean.BmobIMImageMessage;
@@ -131,7 +132,7 @@ public class ChatActivity extends BaseActivity implements MessageListHandler {
 
     public void chooseFile() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("*/*");
+        intent.setType("image/*");
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         try {
             startActivityForResult(Intent.createChooser(intent, "选择文件"), FILE_SELECT_CODE);
@@ -257,22 +258,41 @@ public class ChatActivity extends BaseActivity implements MessageListHandler {
         firstMsg = list.get(0);
 
         if (adapter == null) {
-
             for (BmobIMMessage bmobIMMessage : list) {
+                String m = bmobIMMessage.getContent();
                 if (bmobIMMessage.getFromId().equals(user.getObjectId())) {
-                    mList.add(new Msg(bmobIMMessage.getContent(), Msg.TYPE.SENT));
+                    if (m.contains("http")) {
+                        String[] strings = m.split("&");
+                        mList.add(new Msg(strings[1], Msg.TYPE.SENT_IMG));
+                    } else {
+                        mList.add(new Msg(bmobIMMessage.getContent(), Msg.TYPE.SENT));
+                    }
                 } else {
-                    mList.add(new Msg(bmobIMMessage.getContent(), Msg.TYPE.RECEIVED));
+                    if (m.contains("http")) {
+                        mList.add(new Msg(m, Msg.TYPE.RECEIVED_IMG));
+                    } else {
+                        mList.add(new Msg(bmobIMMessage.getContent(), Msg.TYPE.RECEIVED));
+                    }
                 }
             }
         } else {
 
             List<Msg> newMsg = new ArrayList<>();
             for (BmobIMMessage bmobIMMessage : list) {
+                String m = bmobIMMessage.getContent();
                 if (bmobIMMessage.getFromId().equals(user.getObjectId())) {
-                    newMsg.add(new Msg(bmobIMMessage.getContent(), Msg.TYPE.SENT));
+                    if (m.contains("http")) {
+                        String[] strings = m.split("&");
+                        mList.add(new Msg(strings[1], Msg.TYPE.SENT_IMG));
+                    } else {
+                        mList.add(new Msg(bmobIMMessage.getContent(), Msg.TYPE.SENT));
+                    }
                 } else {
-                    newMsg.add(new Msg(bmobIMMessage.getContent(), Msg.TYPE.RECEIVED));
+                    if (m.contains("http")) {
+                        mList.add(new Msg(m, Msg.TYPE.RECEIVED_IMG));
+                    } else {
+                        mList.add(new Msg(bmobIMMessage.getContent(), Msg.TYPE.RECEIVED));
+                    }
                 }
             }
             adapter.addData(0, newMsg);
@@ -295,6 +315,7 @@ public class ChatActivity extends BaseActivity implements MessageListHandler {
             Logger.d("msg=" + list.get(i).getMessage().getContent());
         }
     }
+
 
     /**
      * 消息发送监听器

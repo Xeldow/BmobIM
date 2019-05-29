@@ -10,6 +10,7 @@ import android.widget.MediaController;
 import android.widget.Toast;
 
 import com.example.xhadow.bmobim.databinding.ActivityMainBinding;
+import com.example.xhadow.bmobim.download.DownLoadActivity;
 import com.example.xhadow.bmobim.im.model.FriendModel;
 import com.example.xhadow.bmobim.im.model.FriendsAdapter;
 import com.example.xhadow.bmobim.login.model.UserBean;
@@ -105,6 +106,10 @@ public class MainViewModel implements MessageListHandler {
                     }
                 })
                 .create().show();
+    }
+
+    public void toDownLoad() {
+        mContext.startActivity_x(DownLoadActivity.class);
     }
 
 

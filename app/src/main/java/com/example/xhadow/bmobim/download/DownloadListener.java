@@ -1,10 +1,9 @@
 package com.example.xhadow.bmobim.download;
 
 /**
- * Created by Administrator on 2017/2/23.
+ * 第一步：定义接口,规定好下载的行为
  */
 public interface DownloadListener {
-
 
     /**
      * 通知当前的下载进度

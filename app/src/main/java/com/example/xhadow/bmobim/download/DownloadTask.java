@@ -39,6 +39,10 @@ public class DownloadTask extends AsyncTask<String,Integer,Integer> {
 
     private int lastProgress;
 
+    /**
+     * 传入listener
+     * @param listener
+     */
     public DownloadTask(DownloadListener listener) {
         this.listener = listener;
     }
@@ -53,8 +57,9 @@ public class DownloadTask extends AsyncTask<String,Integer,Integer> {
         InputStream is=null;
         RandomAccessFile savedFile=null;
         File file=null;
-        long downloadLength=0;   //记录已经下载的文件长度
-        //文件下载地址
+        //记录已经下载的文件长度
+        long downloadLength=0;
+        //文件下载地址,传入的第一位
         String downloadUrl=params[0];
         //下载文件的名称
         String fileName=downloadUrl.substring(downloadUrl.lastIndexOf("/"));
