@@ -11,7 +11,6 @@ import cn.bmob.newim.event.MessageEvent;
 import cn.bmob.newim.event.OfflineMessageEvent;
 import cn.bmob.newim.listener.BmobIMMessageHandler;
 
-import static com.example.xhadow.bmobim.im.MainViewModel.stringBuilder;
 
 /**
  * @description:

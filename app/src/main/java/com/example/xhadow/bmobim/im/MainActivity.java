@@ -35,6 +35,7 @@ public class MainActivity extends BaseActivity {
         viewModel = new MainViewModel(binding, this);
         binding.setViewModel(viewModel);
         connect();
+        //询问访问文件权限6.0之后的要求
         isGrantExternalRW(this);
     }
 

@@ -61,7 +61,7 @@ public class MsgAdapter extends BaseQuickAdapter<Msg, BaseViewHolder> {
                             .load(msg.getContent())
                             .into((ImageView) holder.getView(R.id.right_img));
                 }else {
-                    Bitmap bitmap = getLoacalBitmap(msg.getContent());
+                    Bitmap bitmap = getLocalBitmap(msg.getContent());
                     holder.setImageBitmap(R.id.right_img, bitmap);
                 }
                 break;
@@ -86,11 +86,11 @@ public class MsgAdapter extends BaseQuickAdapter<Msg, BaseViewHolder> {
      * @param url
      * @return
      */
-    public static Bitmap getLoacalBitmap(String url) {
+    public static Bitmap getLocalBitmap(String url) {
         try {
             FileInputStream fis = new FileInputStream(url);
-            return BitmapFactory.decodeStream(fis);  ///把流转化为Bitmap图片
-
+            //把流转化为Bitmap图片
+            return BitmapFactory.decodeStream(fis);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             return null;

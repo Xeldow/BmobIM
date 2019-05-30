@@ -30,7 +30,7 @@ public class BmobIMApplication extends Application {
         }
         // TODO :初始化Logger
         Logger.addLogAdapter(new AndroidLogAdapter());
-        //
+        //初始化Bmob后台
         Bmob.initialize(this, "1ac3e1ba09906471f87dbe9a82bd6c65");
     }
 

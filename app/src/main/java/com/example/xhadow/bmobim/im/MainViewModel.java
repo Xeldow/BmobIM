@@ -46,9 +46,6 @@ public class MainViewModel implements MessageListHandler {
     private ActivityMainBinding binding;
     private MainActivity mContext;
 
-//    public final ObservableField<String> showMsg = new ObservableField<>();
-
-    public static StringBuilder stringBuilder = new StringBuilder();
 
     private List<FriendModel> mList = new ArrayList<>();
     private FriendsAdapter adapter;
@@ -56,7 +53,10 @@ public class MainViewModel implements MessageListHandler {
     public enum TYPE {SEND, RECEIVE}
 
 
-    private String id;
+    private String fId;
+    /**
+     * 用于发送消息开启对话
+     */
     private BmobIMConversation mBmobIMConversation;
 
 
@@ -67,19 +67,24 @@ public class MainViewModel implements MessageListHandler {
         BmobIM.getInstance().addMessageListHandler(this);
     }
 
+    /**
+     * 初始化好友列表
+     */
     private void initData() {
         BmobQuery<UserBean> query = new BmobQuery<>();
+        //通过id找好友列表
         query.addWhereEqualTo("objectId", user.getObjectId());
         query.findObjects(new FindListener<UserBean>() {
             @Override
             public void done(List<UserBean> list, BmobException e) {
                 if (e == null) {
-                    if (list.get(0).getFriendModelList() != null && list.get(0).getFriendModelList().size() != 0) {
+                    if (list.get(0).getFriendModelList() != null
+                            && list.get(0).getFriendModelList().size() != 0) {
                         mList = list.get(0).getFriendModelList();
                     }
                     initView();
                 } else {
-
+                    mContext.toastShort("请先添加好友");
                 }
             }
         });
@@ -102,9 +107,9 @@ public class MainViewModel implements MessageListHandler {
                 .setPositiveButton("确定", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        String uId = editText.getText().toString();
+                        String fAccount = editText.getText().toString();
                         //查询数据库
-                        queryId(uId, TYPE.SEND);
+                        queryId(fAccount, TYPE.SEND);
                         dialog.dismiss();
                     }
                 })
@@ -116,24 +121,21 @@ public class MainViewModel implements MessageListHandler {
     }
 
 
-    private void queryId(final String uId, final Enum type) {
+    private void queryId(final String fAccount, final Enum type) {
         BmobQuery<UserBean> query = new BmobQuery<>();
-        query.addWhereEqualTo("account", uId);
+        //通过账号找到对应的id
+        query.addWhereEqualTo("account", fAccount);
         query.findObjects(new FindListener<UserBean>() {
             @Override
             public void done(List<UserBean> list, BmobException e) {
                 if (e == null) {
-                    //保存好友数据到本地
-//                    FriendModel newFriend = new FriendModel(list.get(0).getAccount(), list.get(0).getObjectId());
-//                    mList.add(newFriend);
-//                    adapter.notifyDataSetChanged();
-//                    saveFriend(list);
-
-                    id = list.get(0).getObjectId();
+                    //保存好友数据库
+                    fId = list.get(0).getObjectId();
                     if (type == TYPE.SEND) {
-                        sendMsg(user.getAccount() + "Add", id, uId);
+                        //把自己的账号发过去,此时接收者是被添加的好友
+                        sendMsg(user.getAccount() + "Add", fId, fAccount);
                     }
-                    mContext.toastShort(list.get(0).getObjectId());
+                    mContext.toastShort(fId);
                 } else {
                     mContext.toastShort(e.getMessage());
                 }
@@ -141,19 +143,17 @@ public class MainViewModel implements MessageListHandler {
         });
     }
 
-    public void sendMsg(final String message, String sId, String name) {
+    public void sendMsg(final String message, String fId, String fAccount) {
         BmobIMUserInfo info = new BmobIMUserInfo();
         info.setAvatar("填写接收者的头像");
-        info.setUserId(sId);
-        info.setName(name);
+        info.setUserId(fId);
+        info.setName(fAccount);
         BmobIM.getInstance().startPrivateConversation(info, new ConversationListener() {
             @Override
             public void done(BmobIMConversation c, BmobException e) {
                 if (e == null) {
-//                    isOpenConversation = true;
                     //在此跳转到聊天页面或者直接转化
                     mBmobIMConversation = BmobIMConversation.obtain(BmobIMClient.getInstance(), c);
-//                    tv_message.append("发送者：" + user.getAccount() + "\n");
                     BmobIMTextMessage msg = new BmobIMTextMessage();
                     msg.setContent(message);
                     mBmobIMConversation.sendMessage(msg, new MessageSendListener() {
@@ -173,8 +173,43 @@ public class MainViewModel implements MessageListHandler {
         });
     }
 
+    @Override
+    public void onMessageReceive(final List<MessageEvent> list) {
+        Logger.d("size=" + list.size());
+        for (int i = 0; i < list.size(); i++) {
+            final String m = list.get(i).getMessage().getContent();
+            //这个是被添加方收到的
+            if (m.contains("Add")) {
+                AlertDialog.Builder dialog = new AlertDialog.Builder(mContext);
+                dialog.setTitle("好友请求")
+                        .setMessage(m.replace("Add", "") + "希望成为你的好友")
+                        .setNegativeButton("拒绝", null)
+                        .setPositiveButton("同意", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                //同意之后把自己的账号再发回去,同时把新好友加入列表
+                                saveFriend(list, m.replace("Add", ""));
+                                sendMsg("AOK" + user.getAccount()
+                                        , list.get(0).getFromUserInfo().getUserId()
+                                        , m.replace("Add", ""));
+                            }
+                        });
+                dialog.show();
+            } else if (m.contains("AOK")) {
+                saveFriend(list, m.replace("AOK", ""));
+            }
+            Logger.d("i=" + i);
+            Logger.d("msg=" + i);
+        }
+    }
 
-    private void saveFriend(List<MessageEvent> list,String account) {
+
+    /**
+     * 保存在本地同时上传到服务器
+     * @param list
+     * @param account
+     */
+    private void saveFriend(List<MessageEvent> list, String account) {
         FriendModel newFriend =
                 new FriendModel(account
                         , list.get(0).getFromUserInfo().getUserId());
@@ -192,34 +227,4 @@ public class MainViewModel implements MessageListHandler {
             }
         });
     }
-
-
-    @Override
-    public void onMessageReceive(final List<MessageEvent> list) {
-        Logger.d("size=" + list.size());
-        for (int i = 0; i < list.size(); i++) {
-            final String m = list.get(i).getMessage().getContent();
-            if (m.contains("Add")) {
-                AlertDialog.Builder dialog = new AlertDialog.Builder(mContext);
-                dialog.setTitle("好友请求")
-                        .setMessage(m.replace("Add", "") + "希望成为你的好友")
-                        .setNegativeButton("拒绝", null)
-                        .setPositiveButton("同意", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                saveFriend(list,m.replace("Add",""));
-                                sendMsg("AOK"+user.getAccount(), list.get(0).getFromUserInfo().getUserId()
-                                        , m.replace("Add",""));
-                            }
-                        });
-                dialog.show();
-            } else if (m.contains("AOK")) {
-                saveFriend(list,m.replace("AOK",""));
-            }
-            Logger.d("i=" + i);
-            Logger.d("msg=" + i);
-        }
-    }
 }
-
-//[{"id":{"mValue":"d58ac559e6"},"name":{"mValue":"18676257201"}},{"id":{"mValue":"b062e8b9d8"},"name":{"mValue":"15813323130"}}]

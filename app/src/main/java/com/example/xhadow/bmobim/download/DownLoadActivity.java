@@ -29,7 +29,7 @@ public class DownLoadActivity extends AppCompatActivity implements View.OnClickL
 
     private DownloadService.DownloadBinder downloadBinder;
 
-    private String url;
+    private String url = "http://bmob-cdn-25938.b0.upaiyun.com/2019/05/28/4b68ba5940abf1ce80e78b02e03d1007.pdf";;
 
     private ServiceConnection connection = new ServiceConnection() {
 
@@ -55,7 +55,9 @@ public class DownLoadActivity extends AppCompatActivity implements View.OnClickL
         Button cancelDownload = (Button) findViewById(R.id.cancel_download);
         cancelDownload.setOnClickListener(this);
         Intent i = getIntent();
-        url = i.getStringExtra("url");
+        if (i.getStringExtra("url")!=null){
+            url = i.getStringExtra("url");
+        }
         Intent intent = new Intent(this, DownloadService.class);
         //这一点至关重要，因为启动服务可以保证DownloadService一直在后台运行，绑定服务则可以让MaiinActivity和DownloadService
         //进行通信，因此两个方法的调用都必不可少。
@@ -76,9 +78,6 @@ public class DownLoadActivity extends AppCompatActivity implements View.OnClickL
         }
         switch (v.getId()) {
             case R.id.start_download:
-                //String url="http://raw.githubusercontent.com/guolindev/eclipse/master/eclipse-inst-win64.exe";
-//                String url = "http://bmob-cdn-25938.b0.upaiyun.com/2019/05/28/4b68ba5940abf1ce80e78b02e03d1007.pdf";
-//                String url = "http://bmob-cdn-25938.b0.upaiyun.com/2019/05/28/1721517a40a0e69380fe0cb9b9a6c80f.png";
                 downloadBinder.startDownload(url, DownLoadActivity.this);
                 break;
             case R.id.pause_download:

@@ -27,16 +27,20 @@ public class Msg {
          * 发送
          */
         SENT,
+        /**
+         * 发送图片
+         */
         SENT_IMG,
+        /**
+         * 接收图片
+         */
         RECEIVED_IMG
     }
-
 
     public Msg(String content, TYPE type) {
         this.content = content;
         this.type = type;
     }
-
 
     public TYPE getType() {
         return type;

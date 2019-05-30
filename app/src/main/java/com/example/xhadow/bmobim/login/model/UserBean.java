@@ -11,6 +11,7 @@ import cn.bmob.v3.BmobObject;
  * @author: Xeldow
  * @date: 2019/5/14
  */
+
 public class UserBean extends BmobObject {
     private String name;
     private String account;

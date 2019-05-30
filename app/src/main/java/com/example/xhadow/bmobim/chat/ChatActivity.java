@@ -63,7 +63,6 @@ public class ChatActivity extends BaseActivity implements MessageListHandler {
 
     private Button send_btn;
     private ImageButton more_btn;
-    private ImageView img_right;
     private EditText editText;
     private BmobIMConversation mBmobIMConversation;
 
@@ -90,7 +89,6 @@ public class ChatActivity extends BaseActivity implements MessageListHandler {
     }
 
     public void initView() {
-        img_right = findViewById(R.id.right_img);
 
         refreshLayout = findViewById(R.id.load_more_load_fail_view);
         refreshLayout.setProgressViewOffset(true, -30, -40);
@@ -131,11 +129,14 @@ public class ChatActivity extends BaseActivity implements MessageListHandler {
             }
         });
 
+        /*
+         图片点击事件,跳转到之前的断点续传部分
+         */
         adapter.setOnItemChildClickListener(new BaseQuickAdapter.OnItemChildClickListener() {
             @Override
             public void onItemChildClick(BaseQuickAdapter adapter, View view, int position) {
-                Intent intent=new Intent(ChatActivity.this, DownLoadActivity.class);
-                intent.putExtra("url",mList.get(position).getContent());
+                Intent intent = new Intent(ChatActivity.this, DownLoadActivity.class);
+                intent.putExtra("url", mList.get(position).getContent());
                 startActivity(intent);
             }
         });
@@ -159,6 +160,7 @@ public class ChatActivity extends BaseActivity implements MessageListHandler {
             if (resultCode == RESULT_OK) {
                 Uri uri = data.getData();
                 if (uri != null) {
+                    //uri转手机本地文件路径
                     String path = getPath(ChatActivity.this, uri);
                     if (path != null) {
                         File file = new File(path);
@@ -194,15 +196,12 @@ public class ChatActivity extends BaseActivity implements MessageListHandler {
         BmobIMConversation conversationEntrance = new BmobIMConversation();
         conversationEntrance.setConversationId(id);
         //TODO 消息：5.1、根据会话入口获取消息管理，聊天页面
-//        BmobIMUserInfo bmobIMUserInfo = BmobIM.getInstance().getUserInfo(user.getObjectId());
+        //要先生成userInfo对象
         BmobIMUserInfo bmobIMUserInfo = new BmobIMUserInfo(id, fName, "s");
-
         BmobIMConversation bmobIMConversation = BmobIM.getInstance().startPrivateConversation(bmobIMUserInfo, null);
-
-
         mConversationManager = BmobIMConversation.obtain(BmobIMClient.getInstance(), bmobIMConversation);
 
-        //先获取5条历史消息
+        //先获取6条历史消息
         queryMsg(null, 6);
     }
 
@@ -215,10 +214,8 @@ public class ChatActivity extends BaseActivity implements MessageListHandler {
             @Override
             public void done(BmobIMConversation c, BmobException e) {
                 if (e == null) {
-//                    isOpenConversation = true;
                     //在此跳转到聊天页面或者直接转化
                     mBmobIMConversation = BmobIMConversation.obtain(BmobIMClient.getInstance(), c);
-//                    tv_message.append("发送者：" + user.getAccount() + "\n");
                     BmobIMTextMessage msg = new BmobIMTextMessage();
                     msg.setContent(message);
                     mBmobIMConversation.sendMessage(msg, new MessageSendListener() {
@@ -241,11 +238,10 @@ public class ChatActivity extends BaseActivity implements MessageListHandler {
     /**
      * 加载历史数据
      *
-     * @param bmobIMMessage
-     * @param count
+     * @param bmobIMMessage：从这个信息开始加载
+     * @param count：加载的数量
      */
     public void queryMsg(BmobIMMessage bmobIMMessage, int count) {
-
         mConversationManager.queryMessages(bmobIMMessage, count, new MessagesQueryListener() {
             @Override
             public void done(List<BmobIMMessage> list, BmobException e) {
@@ -253,10 +249,6 @@ public class ChatActivity extends BaseActivity implements MessageListHandler {
                     if (null != list && list.size() > 0) {
                         //填充消息到list
                         addMsg(list);
-//                        adapter.addMessages(list);
-//                        adapter.notifyDataSetChanged();
-//                        layoutManager.scrollToPositionWithOffset(list.size() - 1, 0);
-//                        toastLong(list.get(4).getContent());
                     }
                 } else {
                     toastShort(e.getMessage() + "(" + e.getErrorCode() + ")");
@@ -266,53 +258,77 @@ public class ChatActivity extends BaseActivity implements MessageListHandler {
     }
 
     private void addMsg(List<BmobIMMessage> list) {
+        //注意这里保存的其实是最顶端的消息
         firstMsg = list.get(0);
-
+        //如果是第一次获取
         if (adapter == null) {
             for (BmobIMMessage bmobIMMessage : list) {
                 String m = bmobIMMessage.getContent();
-                if (bmobIMMessage.getFromId().equals(user.getObjectId())) {
-                    if (m.contains("http")) {
-                        String[] strings = m.split("&");
-                        mList.add(new Msg(strings[1], Msg.TYPE.SENT_IMG));
-                    } else {
-                        mList.add(new Msg(bmobIMMessage.getContent(), Msg.TYPE.SENT));
-                    }
-                } else {
-                    if (m.contains("http")) {
-                        mList.add(new Msg(m, Msg.TYPE.RECEIVED_IMG));
-                    } else {
-                        mList.add(new Msg(bmobIMMessage.getContent(), Msg.TYPE.RECEIVED));
-                    }
-                }
+                //判断是自己发的
+//                if (bmobIMMessage.getFromId().equals(user.getObjectId())) {
+//                    if (m.contains("http")) {
+//                        String[] strings = m.split("&");
+//                        mList.add(new Msg(strings[1], Msg.TYPE.SENT_IMG));
+//                    } else {
+//                        mList.add(new Msg(bmobIMMessage.getContent(), Msg.TYPE.SENT));
+//                    }
+//                    //判断是接收到的
+//                } else {
+//                    if (m.contains("http")) {
+//                        mList.add(new Msg(m, Msg.TYPE.RECEIVED_IMG));
+//                    } else {
+//                        mList.add(new Msg(bmobIMMessage.getContent(), Msg.TYPE.RECEIVED));
+//                    }
+//                }
+                judgeMsgAndAdd(bmobIMMessage);
             }
+            //如果是加载历史记录
         } else {
-
             List<Msg> newMsg = new ArrayList<>();
             for (BmobIMMessage bmobIMMessage : list) {
-                String m = bmobIMMessage.getContent();
-                if (bmobIMMessage.getFromId().equals(user.getObjectId())) {
-                    if (m.contains("http")) {
-                        String[] strings = m.split("&");
-                        mList.add(new Msg(strings[1], Msg.TYPE.SENT_IMG));
-                    } else {
-                        mList.add(new Msg(bmobIMMessage.getContent(), Msg.TYPE.SENT));
-                    }
-                } else {
-                    if (m.contains("http")) {
-                        mList.add(new Msg(m, Msg.TYPE.RECEIVED_IMG));
-                    } else {
-                        mList.add(new Msg(bmobIMMessage.getContent(), Msg.TYPE.RECEIVED));
-                    }
-                }
+//                String m = bmobIMMessage.getContent();
+//                if (bmobIMMessage.getFromId().equals(user.getObjectId())) {
+//                    if (m.contains("http")) {
+//                        String[] strings = m.split("&");
+//                        mList.add(new Msg(strings[1], Msg.TYPE.SENT_IMG));
+//                    } else {
+//                        mList.add(new Msg(bmobIMMessage.getContent(), Msg.TYPE.SENT));
+//                    }
+//                } else {
+//                    if (m.contains("http")) {
+//                        mList.add(new Msg(m, Msg.TYPE.RECEIVED_IMG));
+//                    } else {
+//                        mList.add(new Msg(bmobIMMessage.getContent(), Msg.TYPE.RECEIVED));
+//                    }
+//                }
+                judgeMsgAndAdd(bmobIMMessage);
             }
             adapter.addData(0, newMsg);
             adapter.notifyDataSetChanged();
         }
     }
 
+    private void judgeMsgAndAdd(BmobIMMessage bmobIMMessage) {
+        String m = bmobIMMessage.getContent();
+        if (bmobIMMessage.getFromId().equals(user.getObjectId())) {
+            if (m.contains("http")) {
+                String[] strings = m.split("&");
+                mList.add(new Msg(strings[1], Msg.TYPE.SENT_IMG));
+            } else {
+                mList.add(new Msg(bmobIMMessage.getContent(), Msg.TYPE.SENT));
+            }
+        } else {
+            if (m.contains("http")) {
+                mList.add(new Msg(m, Msg.TYPE.RECEIVED_IMG));
+            } else {
+                mList.add(new Msg(bmobIMMessage.getContent(), Msg.TYPE.RECEIVED));
+            }
+        }
+    }
+
     /**
      * 接收到消息
+     *
      * @param list
      */
     @Override
@@ -348,7 +364,6 @@ public class ChatActivity extends BaseActivity implements MessageListHandler {
         @Override
         public void onStart(BmobIMMessage msg) {
             super.onStart(msg);
-
             Logger.d(msg);
         }
 
@@ -359,8 +374,7 @@ public class ChatActivity extends BaseActivity implements MessageListHandler {
                 toastShort(e.getMessage());
             } else {
                 toastShort("send!");
-//                mList.add(new Msg(),Msg.TYPE.SENT);
-
+                //发送完了再显示
                 toEnd();
             }
         }
@@ -379,7 +393,13 @@ public class ChatActivity extends BaseActivity implements MessageListHandler {
 
     }
 
-
+    /**
+     * 以下都是关于文件路径转换的
+     *
+     * @param context
+     * @param uri
+     * @return
+     */
     @SuppressLint("NewApi")
     public String getPath(final Context context, final Uri uri) {
 
@@ -390,11 +410,6 @@ public class ChatActivity extends BaseActivity implements MessageListHandler {
             // ExternalStorageProvider
             if (isExternalStorageDocument(uri)) {
                 final String docId = DocumentsContract.getDocumentId(uri);
-//                Log.i(TAG,"isExternalStorageDocument***"+uri.toString());
-//                Log.i(TAG,"docId***"+docId);
-//                以下是打印示例：
-//                isExternalStorageDocument***content://com.android.externalstorage.documents/document/primary%3ATset%2FROC2018421103253.wav
-//                docId***primary:Test/ROC2018421103253.wav
                 final String[] split = docId.split(":");
                 final String type = split[0];
 
@@ -404,7 +419,6 @@ public class ChatActivity extends BaseActivity implements MessageListHandler {
             }
             // DownloadsProvider
             else if (isDownloadsDocument(uri)) {
-//                Log.i(TAG,"isDownloadsDocument***"+uri.toString());
                 final String id = DocumentsContract.getDocumentId(uri);
                 final Uri contentUri = ContentUris.withAppendedId(
                         Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
@@ -413,7 +427,6 @@ public class ChatActivity extends BaseActivity implements MessageListHandler {
             }
             // MediaProvider
             else if (isMediaDocument(uri)) {
-//                Log.i(TAG,"isMediaDocument***"+uri.toString());
                 final String docId = DocumentsContract.getDocumentId(uri);
                 final String[] split = docId.split(":");
                 final String type = split[0];

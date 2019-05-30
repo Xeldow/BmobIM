@@ -35,8 +35,8 @@ public abstract class BaseActivity extends AppCompatActivity {
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                     WindowManager.LayoutParams.FLAG_FULLSCREEN);
         }
-//        //初始化控件
-////        initView();
+//        初始化控件
+//        initView(binding);
 ////        //设置数据
 ////        initData();
     }
@@ -44,7 +44,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 //    /**
 //     * 初始化布局
 //     */
-//    public abstract void initView();
+//    public abstract void initView(ViewDataBinding binding);
 //
 //    /**
 //     * 设置数据

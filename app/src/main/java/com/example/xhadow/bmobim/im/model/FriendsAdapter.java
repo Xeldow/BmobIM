@@ -30,6 +30,11 @@ public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.FriendsV
         mContext = context;
     }
 
+
+    /**
+     * 在RecycleView中使用MVVM
+     * 关键是获取DataBinding
+     */
     public class FriendsViewHolder extends RecyclerView.ViewHolder {
         ItemFriendsBinding binding;
 
@@ -42,8 +47,12 @@ public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.FriendsV
             return binding;
         }
     }
-
-
+    /**
+     * 初始化View的时候也是通过DataBindingUtil充气item布局
+     * @param viewGroup
+     * @param i
+     * @return
+     */
     @NonNull
     @Override
     public FriendsViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
@@ -55,6 +64,7 @@ public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.FriendsV
     @Override
     public void onBindViewHolder(FriendsViewHolder holder, int pos) {
         final FriendModel friends = modelList.get(pos);
+        //这里也是用了双向绑定,每个item都与friends的name对应了
         holder.getBinding().setFriends(friends);
         holder.getBinding().setOnClick(new View.OnClickListener() {
             @Override

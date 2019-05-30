@@ -31,6 +31,9 @@ public class LoginViewModel {
     private ActivityLoginBinding binding;
     private LoginActivity mContext;
 
+    /**
+     * 双向绑定
+     */
     public final ObservableField<String> opName = new ObservableField<>();
 
 
