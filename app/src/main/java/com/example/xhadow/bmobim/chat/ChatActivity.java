@@ -25,8 +25,10 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.example.xhadow.bmobim.R;
 import com.example.xhadow.bmobim.base.BaseActivity;
+import com.example.xhadow.bmobim.download.DownLoadActivity;
 import com.example.xhadow.bmobim.im.MainActivity;
 import com.orhanobut.logger.Logger;
 
@@ -126,6 +128,15 @@ public class ChatActivity extends BaseActivity implements MessageListHandler {
             public void onRefresh() {
                 queryMsg(firstMsg, 4);
                 refreshLayout.setRefreshing(false);
+            }
+        });
+
+        adapter.setOnItemChildClickListener(new BaseQuickAdapter.OnItemChildClickListener() {
+            @Override
+            public void onItemChildClick(BaseQuickAdapter adapter, View view, int position) {
+                Intent intent=new Intent(ChatActivity.this, DownLoadActivity.class);
+                intent.putExtra("url",mList.get(position).getContent());
+                startActivity(intent);
             }
         });
     }
@@ -300,6 +311,10 @@ public class ChatActivity extends BaseActivity implements MessageListHandler {
         }
     }
 
+    /**
+     * 接收到消息
+     * @param list
+     */
     @Override
     public void onMessageReceive(List<MessageEvent> list) {
         Logger.d("size=" + list.size());

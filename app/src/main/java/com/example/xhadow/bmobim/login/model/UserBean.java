@@ -12,6 +12,7 @@ import cn.bmob.v3.BmobObject;
  * @date: 2019/5/14
  */
 public class UserBean extends BmobObject {
+    private String name;
     private String account;
     private String password;
     private List<FriendModel> friendModelList;
@@ -48,5 +49,13 @@ public class UserBean extends BmobObject {
 
     public void setFriendModelList(List<FriendModel> friendModelList) {
         this.friendModelList = friendModelList;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

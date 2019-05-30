@@ -53,8 +53,11 @@ public class MainViewModel implements MessageListHandler {
     private List<FriendModel> mList = new ArrayList<>();
     private FriendsAdapter adapter;
 
+    public enum TYPE {SEND, RECEIVE}
+
 
     private String id;
+    private BmobIMConversation mBmobIMConversation;
 
 
     public MainViewModel(ActivityMainBinding binding, MainActivity mContext) {
@@ -101,7 +104,7 @@ public class MainViewModel implements MessageListHandler {
                     public void onClick(DialogInterface dialog, int which) {
                         String uId = editText.getText().toString();
                         //查询数据库
-                        queryId(uId);
+                        queryId(uId, TYPE.SEND);
                         dialog.dismiss();
                     }
                 })
@@ -113,7 +116,7 @@ public class MainViewModel implements MessageListHandler {
     }
 
 
-    private void queryId(String uId) {
+    private void queryId(final String uId, final Enum type) {
         BmobQuery<UserBean> query = new BmobQuery<>();
         query.addWhereEqualTo("account", uId);
         query.findObjects(new FindListener<UserBean>() {
@@ -121,12 +124,15 @@ public class MainViewModel implements MessageListHandler {
             public void done(List<UserBean> list, BmobException e) {
                 if (e == null) {
                     //保存好友数据到本地
-                    FriendModel newFriend = new FriendModel(list.get(0).getAccount(), list.get(0).getObjectId());
-                    mList.add(newFriend);
-                    adapter.notifyDataSetChanged();
-                    saveFriend();
+//                    FriendModel newFriend = new FriendModel(list.get(0).getAccount(), list.get(0).getObjectId());
+//                    mList.add(newFriend);
+//                    adapter.notifyDataSetChanged();
+//                    saveFriend(list);
 
                     id = list.get(0).getObjectId();
+                    if (type == TYPE.SEND) {
+                        sendMsg(user.getAccount() + "Add", id, uId);
+                    }
                     mContext.toastShort(list.get(0).getObjectId());
                 } else {
                     mContext.toastShort(e.getMessage());
@@ -135,13 +141,51 @@ public class MainViewModel implements MessageListHandler {
         });
     }
 
-    private void saveFriend() {
+    public void sendMsg(final String message, String sId, String name) {
+        BmobIMUserInfo info = new BmobIMUserInfo();
+        info.setAvatar("填写接收者的头像");
+        info.setUserId(sId);
+        info.setName(name);
+        BmobIM.getInstance().startPrivateConversation(info, new ConversationListener() {
+            @Override
+            public void done(BmobIMConversation c, BmobException e) {
+                if (e == null) {
+//                    isOpenConversation = true;
+                    //在此跳转到聊天页面或者直接转化
+                    mBmobIMConversation = BmobIMConversation.obtain(BmobIMClient.getInstance(), c);
+//                    tv_message.append("发送者：" + user.getAccount() + "\n");
+                    BmobIMTextMessage msg = new BmobIMTextMessage();
+                    msg.setContent(message);
+                    mBmobIMConversation.sendMessage(msg, new MessageSendListener() {
+                        @Override
+                        public void done(BmobIMMessage msg, BmobException e) {
+                            if (e == null) {
+                                mContext.toastShort("请求成功!");
+                            } else {
+                                mContext.toastShort("error!");
+                            }
+                        }
+                    });
+                } else {
+                    mContext.toastShort("开启会话出错");
+                }
+            }
+        });
+    }
+
+
+    private void saveFriend(List<MessageEvent> list,String account) {
+        FriendModel newFriend =
+                new FriendModel(account
+                        , list.get(0).getFromUserInfo().getUserId());
+        mList.add(newFriend);
+        adapter.notifyDataSetChanged();
         user.setFriendModelList(mList);
         user.update(user.getObjectId(), new UpdateListener() {
             @Override
             public void done(BmobException e) {
                 if (e == null) {
-                    mContext.toastShort("更新成功:");
+                    mContext.toastShort("添加成功");
                 } else {
                     mContext.toastShort("更新失败：" + e.getMessage());
                 }
@@ -149,24 +193,33 @@ public class MainViewModel implements MessageListHandler {
         });
     }
 
+
     @Override
-    public void onMessageReceive(List<MessageEvent> list) {
+    public void onMessageReceive(final List<MessageEvent> list) {
         Logger.d("size=" + list.size());
         for (int i = 0; i < list.size(); i++) {
-            addMsg(list.get(i));
+            final String m = list.get(i).getMessage().getContent();
+            if (m.contains("Add")) {
+                AlertDialog.Builder dialog = new AlertDialog.Builder(mContext);
+                dialog.setTitle("好友请求")
+                        .setMessage(m.replace("Add", "") + "希望成为你的好友")
+                        .setNegativeButton("拒绝", null)
+                        .setPositiveButton("同意", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                saveFriend(list,m.replace("Add",""));
+                                sendMsg("AOK"+user.getAccount(), list.get(0).getFromUserInfo().getUserId()
+                                        , m.replace("Add",""));
+                            }
+                        });
+                dialog.show();
+            } else if (m.contains("AOK")) {
+                saveFriend(list,m.replace("AOK",""));
+            }
             Logger.d("i=" + i);
             Logger.d("msg=" + i);
         }
     }
-
-    private void addMsg(MessageEvent messageEvent) {
-        String msg = messageEvent.getMessage().getContent();
-        stringBuilder.append(msg);
-        stringBuilder.append("\n");
-//        showMsg.set(stringBuilder.toString());
-    }
-
-    public void toChat() {
-
-    }
 }
+
+//[{"id":{"mValue":"d58ac559e6"},"name":{"mValue":"18676257201"}},{"id":{"mValue":"b062e8b9d8"},"name":{"mValue":"15813323130"}}]

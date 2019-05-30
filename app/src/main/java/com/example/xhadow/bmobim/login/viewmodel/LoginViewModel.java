@@ -110,6 +110,7 @@ public class LoginViewModel {
      */
     private void saveUser(UserBean userBean) {
         user = userBean;
+        user.setName(userBean.getAccount());
         SharedPreferences sharedPreferences = mContext.getSharedPreferences("user", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("account", userBean.getAccount());

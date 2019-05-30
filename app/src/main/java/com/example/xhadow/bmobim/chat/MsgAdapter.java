@@ -75,6 +75,7 @@ public class MsgAdapter extends BaseQuickAdapter<Msg, BaseViewHolder> {
                 Glide.with(mContext)
                         .load(msg.getContent())
                         .into((ImageView) holder.getView(R.id.left_img));
+                holder.addOnClickListener(R.id.left_img);
                 break;
         }
     }
