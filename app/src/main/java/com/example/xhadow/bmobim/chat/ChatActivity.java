@@ -121,6 +121,9 @@ public class ChatActivity extends BaseActivity implements MessageListHandler {
             }
         });
 
+        /**
+         * 接收历史消息
+         */
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -263,8 +266,8 @@ public class ChatActivity extends BaseActivity implements MessageListHandler {
         //如果是第一次获取
         if (adapter == null) {
             for (BmobIMMessage bmobIMMessage : list) {
-                String m = bmobIMMessage.getContent();
-                //判断是自己发的
+//                String m = bmobIMMessage.getContent();
+//                //判断是自己发的
 //                if (bmobIMMessage.getFromId().equals(user.getObjectId())) {
 //                    if (m.contains("http")) {
 //                        String[] strings = m.split("&");
@@ -280,7 +283,7 @@ public class ChatActivity extends BaseActivity implements MessageListHandler {
 //                        mList.add(new Msg(bmobIMMessage.getContent(), Msg.TYPE.RECEIVED));
 //                    }
 //                }
-                judgeMsgAndAdd(bmobIMMessage);
+                judgeMsgAndAdd(bmobIMMessage, mList);
             }
             //如果是加载历史记录
         } else {
@@ -290,38 +293,38 @@ public class ChatActivity extends BaseActivity implements MessageListHandler {
 //                if (bmobIMMessage.getFromId().equals(user.getObjectId())) {
 //                    if (m.contains("http")) {
 //                        String[] strings = m.split("&");
-//                        mList.add(new Msg(strings[1], Msg.TYPE.SENT_IMG));
+//                        newMsg.add(new Msg(strings[1], Msg.TYPE.SENT_IMG));
 //                    } else {
-//                        mList.add(new Msg(bmobIMMessage.getContent(), Msg.TYPE.SENT));
+//                        newMsg.add(new Msg(bmobIMMessage.getContent(), Msg.TYPE.SENT));
 //                    }
 //                } else {
 //                    if (m.contains("http")) {
-//                        mList.add(new Msg(m, Msg.TYPE.RECEIVED_IMG));
+//                        newMsg.add(new Msg(m, Msg.TYPE.RECEIVED_IMG));
 //                    } else {
-//                        mList.add(new Msg(bmobIMMessage.getContent(), Msg.TYPE.RECEIVED));
+//                        newMsg.add(new Msg(bmobIMMessage.getContent(), Msg.TYPE.RECEIVED));
 //                    }
 //                }
-                judgeMsgAndAdd(bmobIMMessage);
+                judgeMsgAndAdd(bmobIMMessage, newMsg);
             }
             adapter.addData(0, newMsg);
             adapter.notifyDataSetChanged();
         }
     }
 
-    private void judgeMsgAndAdd(BmobIMMessage bmobIMMessage) {
+    private void judgeMsgAndAdd(BmobIMMessage bmobIMMessage, List<Msg> list) {
         String m = bmobIMMessage.getContent();
         if (bmobIMMessage.getFromId().equals(user.getObjectId())) {
             if (m.contains("http")) {
                 String[] strings = m.split("&");
-                mList.add(new Msg(strings[1], Msg.TYPE.SENT_IMG));
+                list.add(new Msg(strings[1], Msg.TYPE.SENT_IMG));
             } else {
-                mList.add(new Msg(bmobIMMessage.getContent(), Msg.TYPE.SENT));
+                list.add(new Msg(bmobIMMessage.getContent(), Msg.TYPE.SENT));
             }
         } else {
             if (m.contains("http")) {
-                mList.add(new Msg(m, Msg.TYPE.RECEIVED_IMG));
+                list.add(new Msg(m, Msg.TYPE.RECEIVED_IMG));
             } else {
-                mList.add(new Msg(bmobIMMessage.getContent(), Msg.TYPE.RECEIVED));
+                list.add(new Msg(bmobIMMessage.getContent(), Msg.TYPE.RECEIVED));
             }
         }
     }
