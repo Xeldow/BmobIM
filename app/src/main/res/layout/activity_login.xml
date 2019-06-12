@@ -45,6 +45,7 @@
             android:layout_marginBottom="5dp"
             android:hint="请输入账号（未注册的账号将会直接注册）"
             android:inputType="number"
+            android:minLines="11"
             android:maxLines="11" />
 
         <EditText
