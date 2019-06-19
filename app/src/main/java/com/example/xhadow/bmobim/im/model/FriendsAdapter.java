@@ -47,8 +47,10 @@ public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.FriendsV
             return binding;
         }
     }
+
     /**
      * 初始化View的时候也是通过DataBindingUtil充气item布局
+     *
      * @param viewGroup
      * @param i
      * @return
@@ -80,6 +82,6 @@ public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.FriendsV
 
     @Override
     public int getItemCount() {
-        return modelList.size() ;
+        return modelList.size();
     }
 }
